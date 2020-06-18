@@ -23,7 +23,6 @@ import StellarInfra.IO as IO
 a = IO.loadBinFast('test/test.bin','B')
 
 class TestObj:
-    
     def __init__(self):
         pass
     
@@ -50,7 +49,7 @@ func1()
 func2()
 func3()
 
-oStage = CStageControl([1,3,4])
+oStage = CStageControl([4])
 
 if oStage(1):
     print(1)
@@ -59,6 +58,26 @@ if oStage(2):
     print(2)
     
 if oStage(4):
+    oLog1 = CLog('./Test/','test')
+    oLog2 = CLog('./Test/','test','.bak')
     print(4)
-    
+    oLog1.t(1,2,3)
+    oLog1.t(5,6,7,splitChar='\t')
+    oLog1.t(8,9,10,splitChar = ',',newline = False)
+    oLog1.t(11,12,13,newline = True)
+    import time
+    oLog2.Mode = 'fast'
+    for i in range(5):
+        time.sleep(1)
+        oLog2(1,2,3)
+    oLog2.Mode = 'safe'
+    print(oLog2._mode)
+    oLog2(4,5,6)
+    oLog2.Mode = False
+    oLog2(7,8,9)
+    oLog2.ifPrint = False
+    oLog2(10,11,12)
+    oLog2.Mode = 'safe'
+    oLog2(13,14,15)
+
     

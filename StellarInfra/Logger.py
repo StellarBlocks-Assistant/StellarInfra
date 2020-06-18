@@ -8,29 +8,40 @@ import datetime
 from .DirManage import checkFolder
 #maybe considering the offcial logging lib in the future
 
-LOG_MODE = ['safe','fast']
+LOG_MODE = ['safe','fast',False]
 PRINT_MODE = [True,False]
-LOG_MODE = [True,False]
+TRUE_FALSE= [True,False]
 import sys
 class CLog:
-  
-    def __init__(self,folder=None,Name=None):
+    #
+    def __init__(self,folder=None,Name=None,ext = '.txt'):
         self._mode = 'safe' # 'fast' | 'safe'
         self._printFlag = True
-        self._logFlag = True
         self._buffer = list()
         self.folder = None
         self.name = None
-        self.fileName = None
+        self._fileName = None
+        self.fileHandle = None
         if folder != None and Name != None:
             checkFolder(folder)
-            self.fileName = folder+Name + '.txt'
+            self._fileName = folder+Name + ext
             self.Open()
             self.Save()
             self.folder = folder
             self.name = Name
         else:
             self.fileHandle = None
+    
+    @property
+    def fileName(self):
+        return self._fileName
+    
+    @fileName.setter
+    def fileName(self,value):
+        if self.fileHandle != None:
+            self._fileName = value
+            self.Open()
+            self.Save()
     
     @property
     def Mode(self):
@@ -56,14 +67,10 @@ class CLog:
             
     @property
     def ifLog(self):
-        return self._logFlag
-    
-    @ifLog.setter
-    def ifLog(self,value):
-        if value not in LOG_MODE:
-            raise ValueError('value of mode is wrong ',PRINT_MODE)
+        if self._mode == False:
+            return False
         else:
-            self._logFlag = value
+            return True
     
     @property
     def usable(self):
@@ -73,40 +80,85 @@ class CLog:
             return False
     
     def Open(self):
-        if not self.usable:
+        if self._fileName == None:
             return False
-        self.fileHandle = open(self.fileName, "a+")
+        self.fileHandle = open(self._fileName, "a+")
         
     def Save(self):
         if not self.usable:
             return False
+        self.flushBuffer()
         self.fileHandle.close()
         
-    def Write(self,Str):
-        if self._printFlag:
+    def Write(self,Str,FlagLog,FlagPrint):
+        '''
+        flagLog for self.Write: 
+            0: safe mode
+            1: fast mode
+            2: can't write
+        flagPrint for self.Write:
+            0: Print
+            1: don't Print
+        '''
+#        print(FlagLog)
+        if FlagPrint == 0:
             sys.stdout.write(Str)
-        if not self.usable:
+#            sys.stdout.flush()
+        if FlagLog == 2:
             return False
-        if self.ifLog:
-            if self._mode == 'safe':
-                self.Open()
-                self.fileHandle.write(Str)
-                self.Save()
-            else:
-                self._buffer.append(Str)
+        if FlagLog == 0:
+            self.fileHandle.write(Str)
+        elif FlagLog == 1:
+            self._buffer.append(Str)
+        else:
+            raise ValueError(FlagLog)
         
-    def record(self,*logs,splitChar=' ',newline:bool = True):
+    def record(self,*logs,splitChar:str=' ',newline:bool = True):
+        '''
+        flagLog for self.Write: 
+            0: safe mode
+            1: fast mode
+            2: can't write
+        flagPrint for self.Write:
+            0: Print
+            1: don't Print
+        '''
+        flagLog = 2
+        flagPrint = 1
+        if self._printFlag:
+            flagPrint = 0
+        
+        if not self.usable:
+            flagLog = 2
+        elif not self.ifLog:
+            flagLog = 2
+        else:
+            if self._mode == 'safe':
+                # to avoid leaving the content of the buffer behind, we need to flush it
+                # this will reduce the difficulty of users' using
+                self.flushBuffer()
+                flagLog = 0
+                self.Open()
+            elif self._mode == 'fast':
+                flagLog = 1
+            else:
+                flagLog = 2
+        
         for idx,log in enumerate(logs):
             Str = str(log)
             if idx != len(logs) - 1 :
-                self.Write(Str + splitChar)
+                self.Write(Str + splitChar,FlagLog=flagLog, FlagPrint=flagPrint)
             else:
-                self.Write(Str)
+                self.Write(Str,FlagLog=flagLog, FlagPrint=flagPrint)
         
         if(newline == True):
-            self.Write('\n')
+            self.Write('\n',FlagLog=flagLog, FlagPrint=flagPrint)
         else:
-            self.Write(splitChar)
+            self.Write(splitChar,FlagLog=flagLog, FlagPrint=flagPrint)
+            
+        if self.usable and flagLog == 0:
+            # save the content to the file
+            self.Save()
         
     def safeRecord(self,*logs,splitChar=' ',newline:bool = True):
         temp = self._mode
@@ -118,12 +170,14 @@ class CLog:
         now = datetime.datetime.now()
         self.safeRecord(*logs,now,splitChar=splitChar ,newline = newline)
         
-    def saveBuffer(self):
+    def flushBuffer(self):
+        self.Open()
         if not self.usable:
             return False
-        for log in self._buffer:
-            self.fileHandle.write(log)
-        self.Save()
+        if(len(self._buffer) > 0):
+            for log in self._buffer:
+                self.fileHandle.write(log)
+        self._buffer.clear()
         
     def __call__(self,*logs,splitChar=' ',newline:bool = True):
         return self.record(*logs,splitChar = splitChar, newline = newline)
@@ -133,7 +187,5 @@ class CLog:
         return self.record(*logs,now,splitChar=splitChar ,newline = newline)
         
     def __del__(self):
-        if(len(self._buffer) > 0):
-            self.saveBuffer()
         self.Save()
     

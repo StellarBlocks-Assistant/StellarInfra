@@ -16,6 +16,7 @@ class CStageControl:
     def stage(self,stageNum):
         if(stageNum in self.targetList):
             self.oLog('Stage_' + str(stageNum) + ':')
+            return True
         else:
 #            sys.exit(0)
             return False
