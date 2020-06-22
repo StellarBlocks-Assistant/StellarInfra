@@ -34,33 +34,36 @@ def getSubFolderName(folder):
 class CDirectoryConfig:
     
     def __init__(self,dir_List, confFile):
-        self.dir_dict = dict()
-        self.confFile = confFile
+        self._dir_dict = dict()
+        self._confFile = confFile
         for i in dir_List:
-            self.dir_dict[i] = ''
-        self.load_conf()
+            self._dir_dict[i] = ''
+        self._load_conf()
+        self._addAttr()
+        self._checkFolders()
             
-    def load_conf(self):
-        conf_file = self.confFile
+    def _load_conf(self):
+        conf_file = self._confFile
         config = ConfigParser(interpolation=BasicInterpolation())
         config.read(conf_file,encoding = 'utf-8')
-        conf_name = getFileName(conf_file)
-        for dir_1 in self.dir_dict:
-            self.dir_dict[dir_1] = config.get(conf_name, dir_1)
+        conf_name, ext = getFileName(conf_file)
+        for dir_1 in self._dir_dict:
+            self._dir_dict[dir_1] = config.get(conf_name, dir_1)
 #            print(dir_1,config.get(conf_name, dir_1))
     
-    def p(self,keyName):
-        return self.dir_dict[keyName]
-    
     def __getitem__(self,keyName):
-        return self.dir_dict[keyName]
+        return self._dir_dict[keyName]
     
-    def checkFolders(self,foldersList = None):
+    def _checkFolders(self,foldersList = None):
         if foldersList != None:
             pass
         else:
-            foldersList = self.dir_dict.keys()
+            foldersList = self._dir_dict.keys()
         
         for folder in foldersList:
-                checkFolder(self.p(folder))
+                checkFolder(self._dir_dict[folder])
+    
+    def _addAttr(self):
+        for name in self._dir_dict:
+            setattr(CDirectoryConfig,name,self._dir_dict[name])
     
