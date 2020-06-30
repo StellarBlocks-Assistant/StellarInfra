@@ -161,8 +161,9 @@ class CLog:
             self.Save()
         
     def safeRecord(self,*logs,splitChar=' ',newline:bool = True):
-        temp = self._mode
-        self.Mode = 'safe'
+        temp = self.Mode
+        if self.Mode != False:
+            self.Mode = 'safe'
         self.record(*logs,splitChar=splitChar,newline = newline)
         self.Mode = temp
     
