@@ -6,7 +6,9 @@ Created on Wed Jun 17 12:07:00 2020
 """
 import array,os
 import numpy as np
+from scipy import io as scipyIO
 from .DirManage import checkFolder
+
 
 ''' Python Object IO'''
 def saveObject(Object,folderName,tag, ext = '.bin'):
@@ -37,4 +39,13 @@ def loadText(Dir):
     contents = f.read()
     f.close()
     return contents
+''' End '''
+
+'''load Matlab .Mat file '''
+
+def loadMatFile(matFilePath):
+    return scipyIO.loadmat(matFilePath)
+
+def saveMatFile(matFilePath,mdict,**kwargs):
+    return scipyIO.savemat(matFilePath,mdict,**kwargs)
 ''' End '''

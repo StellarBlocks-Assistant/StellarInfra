@@ -10,13 +10,16 @@ import warnings
 from configparser import ConfigParser,BasicInterpolation
 
 
+def checkExists(path):
+    return os.path.exists(path)
+
 def checkFolder(folderPath):
     if not os.path.isdir(folderPath):
         warnings.warn("path: " + folderPath + "doesn't exist, and it is created")
         os.makedirs(folderPath)
 
 def getFileList(folder_path,extension):
-    ans = [folder_path+file for file in os.listdir(folder_path) if file.endswith(extension)]
+    ans = [os.path.join(folder_path,file) for file in os.listdir(folder_path) if file.endswith(extension)]
     if(len(ans)==0):
         warnings.warn("getFileList's error: folder: '" + str(folder_path) + "'is empty with '" + str(extension) + "' kind of file")
         return None
