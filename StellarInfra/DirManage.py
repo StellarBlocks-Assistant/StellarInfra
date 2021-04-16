@@ -9,6 +9,8 @@ import os
 import warnings
 from configparser import ConfigParser,BasicInterpolation
 
+def getUpperDir(path:str):
+    return os.path.split(path)
 
 def isFolderOrFile(path:str):
     '''
@@ -32,7 +34,7 @@ def checkExists(path):
 
 def checkFolder(folderPath):
     if not os.path.isdir(folderPath):
-        warnings.warn("path: " + folderPath + "doesn't exist, and it is created")
+        warnings.warn("path: " + folderPath + " doesn't exist, and it is created")
         os.makedirs(folderPath)
 
 def getFileList(folder_path,extension):
@@ -111,7 +113,7 @@ class CPathConfig:
                 self._dict[sec][item] = config.get(sec,item)
                 # print(config.get(sec,item))
     
-    def __getitem__(self,*keyName):
+    def __getitem__(self,keyName):
         return self._dict[keyName[0]][keyName[1]]
     
     def _checkFolders(self):
@@ -127,6 +129,9 @@ class CPathConfig:
                 elif flag == 0:
                     if ext == '':
                         checkFolder(path)
+                    else:
+                        folder,ext = getUpperDir(path)
+                        checkFolder(folder)
                 else:
                     assert flag != -1
     
