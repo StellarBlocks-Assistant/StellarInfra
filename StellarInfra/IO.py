@@ -34,8 +34,8 @@ def loadBinFast(Dir,Type:str = 'd'):
     return np.asarray(a)
     
 
-def loadText(Dir):
-    f=open(Dir, "r")
+def loadText(path):
+    f=open(path, "r")
     contents = f.read()
     f.close()
     return contents
