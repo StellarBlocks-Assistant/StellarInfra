@@ -5,8 +5,40 @@ Created on Wed Jun 17 14:37:03 2020
 @author: Jin Dou
 """
 import datetime
-from .DirManage import checkFolder
+from .DirManage import checkFolder,checkExists
+import pandas as pd
 #maybe considering the offcial logging lib in the future
+
+class CExprLogger:
+    def __init__(self,keys:list,file:str):
+        import datetime
+        self.libDate = datetime
+        newKeysList = ['time'] + keys
+        if checkExists(file):
+            self._df = pd.read_excel(file,sheet_name='Sheet1',engine='openpyxl',index_col = 0)
+            colNames = list(self._df.columns)
+            if len(colNames) == 0:
+                self._df = pd.DataFrame(columns = newKeysList)
+            else:
+                # print(set(newKeysList),set(colNames))
+                if set(newKeysList) != set(colNames):
+                    addedKeys = (set(newKeysList) - set(colNames))
+                    for i in addedKeys:
+                        self._df[i] = ['default'] * len(self._df)
+        else:
+            self._df = None
+            self._df = pd.DataFrame(columns = newKeysList)
+        self.file = file
+        
+    def append(self,data:dict):
+        data = data.copy()
+        data['time'] = self.libDate.datetime.now()
+        self._df = self._df.append(data,ignore_index = True)
+        self.save()
+        
+    def save(self):
+        self._df.to_excel(self.file,sheet_name='Sheet1',engine='openpyxl')
+
 
 LOG_MODE = ['safe','fast',False]
 PRINT_MODE = [True,False]
