@@ -38,7 +38,7 @@ def loadObject(filePath):
 
 def saveDictJson(filePath:str,Obj:dict):
     with open(filePath,'w') as file:
-        json.dump(Obj,file,default = toJson)
+        json.dump(Obj,file,default = toJson,indent=4)
         
 def loadJson(filePath:str):
     out = None
