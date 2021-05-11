@@ -222,8 +222,8 @@ class CLog:
         now = datetime.datetime.now()
         return self.record(*logs,now,splitChar=splitChar ,newline = newline)
         
-    def __del__(self):
-        self.Save()
+    # def __del__(self):
+        # self.Save()
         
     def _handleSIGINT(self,signal_received, frame):
         self.t('SIGINT or CTRL-C detected. Exiting gracefully')
