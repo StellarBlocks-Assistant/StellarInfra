@@ -7,6 +7,8 @@ Created on Wed Jun 17 14:37:03 2020
 import datetime
 from .DirManage import checkFolder,checkExists
 import pandas as pd
+from signal import signal, SIGINT
+import sys
 #maybe considering the offcial logging lib in the future
 
 class CExprLogger:
@@ -43,10 +45,11 @@ class CExprLogger:
 LOG_MODE = ['safe','fast',False]
 PRINT_MODE = [True,False]
 TRUE_FALSE= [True,False]
-import sys
+
 class CLog:
     #
     def __init__(self,folder=None,Name=None,ext = '.txt'):
+        signal(SIGINT, self._handleSIGINT)
         self._mode = 'safe' # 'fast' | 'safe'
         self._printFlag = True
         self._buffer = list()
@@ -221,4 +224,9 @@ class CLog:
         
     def __del__(self):
         self.Save()
+        
+    def _handleSIGINT(self,signal_received, frame):
+        self.t('SIGINT or CTRL-C detected. Exiting gracefully')
+        sys.exit(0)
+        
     
