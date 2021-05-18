@@ -104,6 +104,7 @@ class CPathConfig:
     def _load_conf(self):
         conf_file = self._confFile
         config = ConfigParser(interpolation=BasicInterpolation())
+        config.optionxform = str #disable the default changing to lowercase
         config.read(conf_file,encoding = 'utf-8')
         sections = config.sections()
         for sec in sections:
