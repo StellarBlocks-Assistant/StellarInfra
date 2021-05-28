@@ -32,9 +32,12 @@ class CExprLogger:
             self._df = pd.DataFrame(columns = newKeysList)
         self.file = file
         
-    def append(self,data:dict):
+    def append(self,data:dict,timeTag = None):
         data = data.copy()
-        data['time'] = self.libDate.datetime.now()
+        if timeTag:
+            data['time'] = timeTag
+        else:
+            data['time'] = self.libDate.datetime.now()
         self._df = self._df.append(data,ignore_index = True)
         self.save()
         
