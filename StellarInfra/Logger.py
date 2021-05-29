@@ -43,6 +43,23 @@ class CExprLogger:
         
     def save(self):
         self._df.to_excel(self.file,sheet_name='Sheet1',engine='openpyxl')
+        
+    def load(self,path):
+        if checkExists(path):
+            self._df = pd.read_excel(path,sheet_name='Sheet1',engine='openpyxl',index_col = 0)
+        else:
+            raise ValueError("path {path} doesn't exit")
+            
+    @property
+    def df(self):
+        return self._df
+    
+    def selectByCond(self,*args):
+        result = args[0]
+        for i in range(1,len(args)):
+            result = result & args[i]
+        return self.df[result]
+        
 
 
 LOG_MODE = ['safe','fast',False]
