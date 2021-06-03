@@ -53,8 +53,6 @@ def getSubFolderName(folder):
     subfolders = [f.name for f in os.scandir(folder) if f.is_dir() ]
     return subfolders
 
-class DummyObj:
-    pass
 
 class CDirectoryConfig:
     
@@ -91,7 +89,21 @@ class CDirectoryConfig:
     def _addAttr(self):
         for name in self._dir_dict:
             setattr(CDirectoryConfig,name,self._dir_dict[name])
-            
+
+class CPathSection:
+    pass
+
+class CPath(str):
+    def __add__(self,newPath:str):
+        if isinstance(newPath, CPath):
+            return CPath(super().__add__(f'\{newPath}'))
+        else:
+            return super().__add__(newPath)
+    
+    def __truediv__(self,newPath:str):
+        return CPath(super().__add__(f'\{newPath}'))
+        
+    
 class CPathConfig:
     
     def __init__(self,confFile,sectionList:list = None):
@@ -138,6 +150,6 @@ class CPathConfig:
     
     def _addAttr(self):
         for sec in self._dict:
-            setattr(CPathConfig,sec,DummyObj())
+            setattr(CPathConfig,sec,CPathSection())
             for item in self._dict[sec]:
-                setattr(getattr(CPathConfig, sec),item,self._dict[sec][item])
+                setattr(getattr(CPathConfig, sec),item,CPath(self._dict[sec][item]))
