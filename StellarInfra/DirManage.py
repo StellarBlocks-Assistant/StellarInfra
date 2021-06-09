@@ -106,12 +106,13 @@ class CPath(str):
     
 class CPathConfig:
     
-    def __init__(self,confFile,sectionList:list = None):
+    def __init__(self,confFile,sectionList:list = None, checkFolders = True):
         self._dict = dict()
         self._confFile = confFile
         self._load_conf()
         self._addAttr()
-        self._checkFolders()
+        if checkFolders:
+            self._checkFolders()
             
     def _load_conf(self):
         conf_file = self._confFile
