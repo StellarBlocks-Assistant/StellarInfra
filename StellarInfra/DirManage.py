@@ -91,7 +91,8 @@ class CDirectoryConfig:
             setattr(CDirectoryConfig,name,self._dir_dict[name])
 
 class CPathSection:
-    pass
+    def __getitem__(self,keyName):
+        return getattr(self, keyName)
 
 class CPath(str):
     def __add__(self,newPath:str):
@@ -128,7 +129,7 @@ class CPathConfig:
                 # print(config.get(sec,item))
     
     def __getitem__(self,keyName):
-        return self._dict[keyName[0]][keyName[1]]
+        return getattr(self, keyName)
     
     def _checkFolders(self):
 
@@ -151,6 +152,6 @@ class CPathConfig:
     
     def _addAttr(self):
         for sec in self._dict:
-            setattr(CPathConfig,sec,CPathSection())
+            setattr(self,sec,CPathSection())
             for item in self._dict[sec]:
-                setattr(getattr(CPathConfig, sec),item,CPath(self._dict[sec][item]))
+                setattr(getattr(self, sec),item,CPath(self._dict[sec][item]))
