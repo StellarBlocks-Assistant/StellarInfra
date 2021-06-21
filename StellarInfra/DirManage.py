@@ -10,7 +10,11 @@ import warnings
 from configparser import ConfigParser,BasicInterpolation
 
 def getUpperDir(path:str):
-    return os.path.split(path)
+    out = os.path.split(path)
+    if isinstance(path, CPath):
+        return CPath(out[0]),out[1]
+    else:
+        return os.path.split(path)
 
 def isFolderOrFile(path:str):
     '''

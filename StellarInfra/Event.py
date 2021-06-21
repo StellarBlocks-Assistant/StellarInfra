@@ -10,6 +10,7 @@ from multiprocessing.connection import Listener
 from multiprocessing.managers import BaseManager  
 import multiprocessing as mp
 from multiprocessing.connection import Client
+import time
 
 class ReturnCode:
     WARNING_NOTHING_TO_RECV = -1
@@ -69,6 +70,7 @@ CCrsProcManager.register('server', CServer)#regested class in Manager can only u
 def onCallRecvDaemon(address,oServer:CServer,oRecvCache:mp.Queue):
     oSocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     oSocket.bind(address)
+    print('onCallRecv: Starting')
     oSocket.listen()
     oInnerConn,addr = oSocket.accept()
     print('onCallRecv: connected')
@@ -95,6 +97,7 @@ def onCallRecvDaemon(address,oServer:CServer,oRecvCache:mp.Queue):
                         oRecvCache.put(recvMsg)
                         oInnerConn.send(b'newMsg')
                         if(recvMsg == 'quitBusyMode'):
+                            oSocket.close()
                             return
             elif r is oInnerConn:
                 data = r.recv(512)
@@ -109,6 +112,7 @@ def onCallRecvDaemon(address,oServer:CServer,oRecvCache:mp.Queue):
 def onCallSendDaemon(address,oServer:CServer,oSendCache:mp.Queue):
     oSocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     oSocket.bind(address)
+    print('onCallSend: Starting')
     oSocket.listen()
     oInnerConn,addr = oSocket.accept()
     print('onCallSend_connected')
@@ -135,16 +139,16 @@ def onCallSendDaemon(address,oServer:CServer,oSendCache:mp.Queue):
                         else:
                             oOuterConn.send(sendMsg)
                             print('onCallSend_send_msg: ', sendMsg)
-                if('close' in msg):
+                if('close' in msg) or (msg == 'quitBusyMode'):
                     oSocket.close()
                     return
 
 
 class CEventEngine:
-    def __init__(self):
-        self.address = ('localhost', 6085)
-        self.addressSendDaemon = ('localhost',8300)
-        self.addressRecvDaemon = ('localhost',8301)
+    def __init__(self,addr:str):
+        self.address = (addr, 6085)
+        self.addressSendDaemon = (addr,8086)
+        self.addressRecvDaemon = (addr,8087)
         self.oCrsProcManager = CCrsProcManager()
         self.oServer = None
         self.oRecvCache = mp.Queue()
@@ -167,12 +171,13 @@ class CEventEngine:
         self.oServer = self.oCrsProcManager.server(self.address)
         self.oServer.start()
         print('server start')
-        self.prcRecv = mp.Process(target = onCallRecvDaemon, 
-                                  args=[self.addressRecvDaemon,self.oServer, self.oRecvCache])
+        #self.prcRecv = mp.Process(target = onCallRecvDaemon, 
+        #                          args=[self.addressRecvDaemon,self.oServer, self.oRecvCache])
         
-        self.prcSend = mp.Process(target = onCallSendDaemon,
-                                  args=[self.addressSendDaemon,self.oServer, self.oSendCache])
-        
+        #self.prcSend = mp.Process(target = onCallSendDaemon,
+        #                          args=[self.addressSendDaemon,self.oServer, self.oSendCache])
+        #self.prcRecv.start()
+        #self.prcSend.start()
         while (True):
             recvMsg = self.oServer.recv()
             if(recvMsg == 'busyMode'):
@@ -193,10 +198,15 @@ class CEventEngine:
     
     def busyMode(self):
         print('enter busy mode')
-            
+        self.prcRecv = mp.Process(target = onCallRecvDaemon, 
+                                  args=[self.addressRecvDaemon,self.oServer, self.oRecvCache])
+        
+        self.prcSend = mp.Process(target = onCallSendDaemon,
+                                  args=[self.addressSendDaemon,self.oServer, self.oSendCache])
         self.prcRecv.start()
         self.prcSend.start()
-        
+        time.sleep(1)    
+        print(self.prcRecv.is_alive(),self.prcSend.is_alive()) 
         self.oSockSendDaemon = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         self.oSockRecvDaemon = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         
@@ -207,11 +217,11 @@ class CEventEngine:
         print('main server select timeout:',timeout)
         while True:
             rd,wt,ex = select.select(readList,[],[],timeout)
-            for r in rd:
+            for idx,r in enumerate(rd):
                 if r is self.oSockRecvDaemon:
                     data = r.recv(512)
                     msg = data.decode()
-                    print('main server recv inner msg:', msg)
+                    print(f'idx: {idx},main server recv inner msg:', msg)
                     if(msg == 'newMsg'):
                         while not self.oRecvCache.empty():
                             recvMsg = ''
@@ -257,7 +267,8 @@ class CEventEngine:
             
         err2 = self.prcRecv.join() #it seems that if join() wait for too long, it will block forever; Maybe because the deadlock between existed recv process and the queue cache the recv process keeps
         print('prcRecv join return',err2)
-
+        self.oSockSendDaemon.close()
+        self.oSockRecvDaemon.close()
         print('quit busy mode')
         return "CKnowledgeServer_busyMode_close"
     
@@ -269,6 +280,10 @@ class CEventEngine:
     
     def _close(self):
         try:
+            try:
+                self.closeBusyMode()
+            except:
+                pass
             try:
                 self.prcRecv.close()
             except:
