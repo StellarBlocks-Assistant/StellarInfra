@@ -9,7 +9,7 @@ from StellarInfra.Event import CEventClient
 import keyboard
 import sys
 
-oClient = CEventClient(('192.168.1.111', 6085))
+oClient = CEventClient(('192.168.1.113', 6085))
 assert oClient.connect()
 def onAPressed():
     oClient.send('a')
@@ -23,6 +23,18 @@ def onDPressed():
     recvMsg = oClient.recv()
     print("receive: ", recvMsg)
     
+def onWPressed():
+    oClient.send('w')
+    recvMsg = oClient.recv()
+    print("receive: ", recvMsg)
+    # print('a')
+    
+def onSPressed():
+    # print('d')
+    oClient.send('s')
+    recvMsg = oClient.recv()
+    print("receive: ", recvMsg)
+    
 def onQPressed():
     print('q')
     oClient.close()
@@ -31,6 +43,8 @@ def onQPressed():
 keyboard.add_hotkey('a', onAPressed)
 keyboard.add_hotkey('d', onDPressed)
 keyboard.add_hotkey('q', onQPressed)
+keyboard.add_hotkey('w', onWPressed)
+keyboard.add_hotkey('s', onSPressed)
 keyboard.wait()
 # assert oClient.connect()
 # while True:

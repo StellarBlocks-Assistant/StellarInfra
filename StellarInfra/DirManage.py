@@ -49,6 +49,16 @@ def getFileList(folder_path,extension):
     else:
         return ans
     
+def getFileListAll_iter(folder_path,ext = ''):
+    for dirpath, dirnames, filenames in os.walk(folder_path):
+        for f in filenames:
+            file_path = os.path.join(dirpath, f)
+            if f.endswith(ext):
+                yield file_path
+            
+def getFileListAll(folder_path,ext = ''):
+    return list(getFileListAll_iter(folder_path,ext))
+    
 def getFileName(path):
     dataSetName, extension = os.path.splitext(os.path.basename(path))    
     return dataSetName,extension
@@ -159,3 +169,21 @@ class CPathConfig:
             setattr(self,sec,CPathSection())
             for item in self._dict[sec]:
                 setattr(getattr(self, sec),item,CPath(self._dict[sec][item]))
+                
+    def checkSectionFolders(self,secName):
+        sec = secName
+        foldersList = self._dict[sec].keys()
+        for folder in foldersList:
+            path = self._dict[sec][folder]
+            _,ext = getFileName(path)
+            flag = isFolderOrFile(path)
+            if flag == 1:
+                checkFolder(path)
+            elif flag == 0:
+                if ext == '':
+                    checkFolder(path)
+                else:
+                    folder,ext = getUpperDir(path)
+                    checkFolder(folder)
+            else:
+                assert flag != -1

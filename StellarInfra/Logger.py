@@ -16,6 +16,9 @@ class CExprLogger:
         import datetime
         self.libDate = datetime
         newKeysList = ['time'] + keys
+        self._load(newKeysList,file)
+        
+    def _load(self,newKeysList:list,file:str):
         if checkExists(file):
             self._df = pd.read_excel(file,sheet_name='Sheet1',engine='openpyxl',index_col = 0)
             colNames = list(self._df.columns)
@@ -50,17 +53,18 @@ class CExprLogger:
         else:
             raise ValueError("path {path} doesn't exit")
             
+    def __len__(self):
+        return len(self._df)
+            
     @property
     def df(self):
         return self._df
     
     def selectByCond(self,*args):
-        result = args[0]
+        condFinal = args[0]
         for i in range(1,len(args)):
-            result = result & args[i]
-        return self.df[result]
-        
-
+            condFinal = condFinal & args[i]
+        return self.df[condFinal]
 
 LOG_MODE = ['safe','fast',False]
 PRINT_MODE = [True,False]
