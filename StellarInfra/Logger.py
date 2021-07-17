@@ -83,7 +83,7 @@ class CLog:
         self.fileHandle = None
         if folder != None and Name != None:
             checkFolder(folder)
-            self._fileName = folder+Name + ext
+            self._fileName = folder+'/' + Name + ext
             self.Open()
             self.Save()
             self.folder = folder
