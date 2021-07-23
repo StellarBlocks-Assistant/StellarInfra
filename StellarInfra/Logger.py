@@ -29,7 +29,7 @@ class CExprLogger:
                 if set(newKeysList) != set(colNames):
                     addedKeys = (set(newKeysList) - set(colNames))
                     for i in addedKeys:
-                        self._df[i] = ['default'] * len(self._df)
+                        self._df[i] = [''] * len(self._df)
         else:
             self._df = None
             self._df = pd.DataFrame(columns = newKeysList)
