@@ -15,7 +15,21 @@ from functools import singledispatch
 @singledispatch
 def toJson(val):
     """ default for json"""
-    return val
+    # print(val,type(val))
+    if isinstance(val, np.ndarray):
+        return val.tolist()
+    else:
+        return val
+
+@toJson.register(np.ndarray)
+def toJson_npArray(val):
+    # print('!!!')
+    return val.tolist()
+
+@toJson.register(np.int64)
+def toJson_int(val):
+    """ for np float 32"""
+    return int(val)
 
 @toJson.register(np.float32)
 def toJson_float32(val):

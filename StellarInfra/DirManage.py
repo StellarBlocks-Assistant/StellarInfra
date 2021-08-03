@@ -124,6 +124,8 @@ class CPathConfig:
     def __init__(self,confFile,sectionList:list = None, checkFolders = True):
         self._dict = dict()
         self._confFile = confFile
+        if not checkExists(confFile):
+            raise ValueError("config file doesn't exist")
         self._load_conf()
         self._addAttr()
         if checkFolders:
