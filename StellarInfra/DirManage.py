@@ -110,10 +110,7 @@ class CPathSection:
 
 class CPath(str):
     def __add__(self,newPath:str):
-        if isinstance(newPath, CPath):
-            return CPath(super().__add__(f'/{newPath}'))
-        else:
-            return super().__add__(newPath)
+        return super().__add__(newPath)
     
     def __truediv__(self,newPath:str):
         return CPath(super().__add__(f'/{newPath}'))
