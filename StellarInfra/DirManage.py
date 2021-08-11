@@ -110,7 +110,7 @@ class CPathSection:
 
 class CPath(str):
     def __add__(self,newPath:str):
-        return super().__add__(newPath)
+        return CPath(super().__add__(newPath))
     
     def __truediv__(self,newPath:str):
         return CPath(super().__add__(f'/{newPath}'))
