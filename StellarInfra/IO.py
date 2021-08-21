@@ -37,9 +37,12 @@ def toJson_float32(val):
     return np.float64(val)
 
 ''' Python Object IO'''
-def saveObject(Object,folderName,tag, ext = '.bin'):
-    checkFolder(folderName)
-    file = open(folderName + '/' + str(tag) + ext, 'wb')
+def saveObject(Object,folderName,tag=None, ext = '.bin'):
+    if tag is None:
+        file = open(folderName, 'wb')
+    else:
+        checkFolder(folderName)
+        file = open(folderName + '/' + str(tag) + ext, 'wb')
     import pickle
     pickle.dump(Object,file)
     file.close()

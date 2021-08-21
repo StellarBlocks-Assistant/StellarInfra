@@ -50,7 +50,7 @@ func1()
 func2()
 func3()
 
-oStage = CStageControl([5])
+oStage = CStageControl([6])
 
 if oStage(1):
     print(1)
@@ -87,4 +87,13 @@ if oStage(5):
     oLog.Mode = False
     oLog.safeRecord('bbbb')
 
-oDir = CDirectoryConfig(['Root','Train','Test','MiddleStage','Output','Models'],'Dataset.conf')
+#oDir = CDirectoryConfig(['Root','Train','Test','MiddleStage','Output','Models'],'Dataset.conf')
+if oStage(6):
+    from StellarInfra.DirManage import CPathConfig
+    oPath = CPathConfig('Stages.conf',checkFolders=False)
+    oPath1 = CPathConfig('Stages.yml')
+#    oPath2 = CPathConfig('Stages.yaml')
+    
+    
+#Folders: !Folders
+#    a: D:\Appendix\Test\TestSTDMYaml

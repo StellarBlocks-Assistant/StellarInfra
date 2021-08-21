@@ -8,6 +8,8 @@ Created on Wed Jun 17 12:11:13 2020
 import os
 import warnings
 from configparser import ConfigParser,BasicInterpolation
+import yaml
+import re
 
 def getUpperDir(path:str):
     out = os.path.split(path)
@@ -37,7 +39,10 @@ def checkExists(path):
     return os.path.exists(path)
 
 def checkFolder(folderPath):
-    if not os.path.isdir(folderPath):
+#    print(folderPath)
+#    if not isinstance(folderPath,str):
+#        return
+    if not os.path.isdir(folderPath) and not os.path.isfile(folderPath):
         warnings.warn("path: " + folderPath + " doesn't exist, and it is created")
         os.makedirs(folderPath)
 
@@ -104,20 +109,175 @@ class CDirectoryConfig:
         for name in self._dir_dict:
             setattr(CDirectoryConfig,name,self._dir_dict[name])
 
+#%% New Path Config Module
 class CPathSection:
+    def __init__(self,dicts):
+        for i in dicts:
+            if isinstance(dicts[i],dict):
+                setattr(self,i, CPathSection(dicts[i]))
+            elif isinstance(dicts[i],str):
+                setattr(self,i, CPath(dicts[i]))
+            else:
+                setattr(self,i, dicts[i])
+    
     def __getitem__(self,keyName):
         return getattr(self, keyName)
 
 class CPath(str):
+    
     def __add__(self,newPath:str):
         return CPath(super().__add__(newPath))
     
     def __truediv__(self,newPath:str):
         return CPath(super().__add__(f'/{newPath}'))
-        
+      
     
 class CPathConfig:
     
+    def __new__(cls,confFile:str,**kwargs):
+        if confFile.endswith('.conf'):
+            return super().__new__(CPathConfigPyConfig)
+        elif confFile.endswith('.yaml') or confFile.endswith('.yml'):
+            return super().__new__(CPathConfigYaml)
+        else:
+            raise ValueError("endswith .conf | .yml | .yaml")
+    
+    def __getitem__(self,keyName):
+        return getattr(self, keyName)
+    
+class CYamlTagMixin:
+    def __getitem__(self,keyName):
+#        print(keyName)
+        return self.__dict__[keyName]
+    
+    def __setitem__(self,keyName,val):
+        self.__dict__[keyName] = val
+    
+    def keys(self):
+        if self.__dict__.get('_cur'):
+            temp = list(self.__dict__.keys())
+            temp.remove('_cur')
+            return temp 
+        else:
+            return self.__dict__.keys()
+    
+    def __iter__(self):
+        self._cur = 0
+        return self
+    
+    def __next__(self):
+        if self._cur >= len(self.keys()):
+            raise StopIteration
+        else:
+            temp = list(self.keys())[self._cur]
+            self._cur+=1
+            return temp
+
+class CYamlFolder(yaml.YAMLObject,CYamlTagMixin):
+    yaml_tag = u'!Folder'
+    
+    def __init__(self, value):
+        self.value = value
+        assert isinstance(value,str)
+    
+    @classmethod
+    def from_yaml(cls, loader, node):
+        return CYamlFolder(node.value)
+
+    @classmethod
+    def to_yaml(cls, dumper, data):
+        return dumper.represent_scalar(cls.yaml_tag, data.env_var)
+
+class CYamlConfig(yaml.YAMLObject,CYamlTagMixin):
+    yaml_tag = u'!StDM'
+    
+class CYamlFolders(yaml.YAMLObject,CYamlTagMixin):
+    yaml_tag = u'!Folders'
+    
+    """ Folders can only have str childs """
+    
+def cat(loader, node):
+    seq = loader.construct_sequence(node)
+    return ''.join([str(i) if not isinstance(i,CYamlFolder) else str(i.value) for i in seq ])
+
+yaml.add_constructor('!cat', cat)
+
+class CPathConfigYaml(CPathConfig):
+    def __init__(self,confFile,checkFolders = True):
+        self._doc = self._load(confFile)
+        assert isinstance(self._doc, CYamlConfig)
+        self.YamlNodes = {}
+        self.YamlNodes.update(self._doc.__dict__)
+        
+        self.processFolder(self.YamlNodes)
+        self.parseRef(self.YamlNodes)
+        self.setAttr(self.YamlNodes)
+        
+        if checkFolder:
+            self.checkFolders(self.YamlNodes)
+#        self.__dict__.update(self.YamlNodes)
+#        self.__dict__.update(self.YamlNodes) 
+    
+    def _load(self,file):
+        with open(file, 'r') as stream:
+            try:
+                return yaml.load(stream,Loader=yaml.FullLoader)
+            except yaml.YAMLError as exc:
+                raise
+                
+    def checkFolders(self,Dict):
+        for idx,i in enumerate(Dict):
+            if isinstance(Dict[i],CYamlFolders):
+#                print(Dict[i].__dict__)
+                for j in Dict[i].keys():
+                    checkFolder(Dict[i][j])
+            else:
+                if getattr(Dict[i],'__dict__',None):
+                    self.checkFolders(Dict[i].__dict__)
+        
+                
+    def processFolder(self,Dict):
+        for idx,i in enumerate(Dict):
+            if isinstance(Dict[i],CYamlFolder):
+                Dict[i] = Dict[i].value
+                checkFolder(Dict[i])
+            else:
+                if getattr(Dict[i],'keys()',None):
+                    self.processFolder(Dict[i].__dict__)
+    
+        
+    def setAttr(self,dicts):
+        for i in dicts:
+            if isinstance(dicts[i],dict):
+                setattr(self,i, CPathSection(dicts[i]))
+            elif isinstance(dicts[i],str):
+                setattr(self,i, CPath(dicts[i]))
+            else:
+                setattr(self,i, dicts[i])
+    
+    def replFunc(self,a):
+        matched = a.groups()[0]
+        attrs = matched.split('.')
+        oAttr = self.YamlNodes
+        for i in attrs:
+#            print(oAttr)
+            oAttr = oAttr[i]
+#        print(oAttr)
+        return oAttr    
+       
+    def parseRef(self,dicts):
+#        print(dicts)
+        for i in dicts:
+            if isinstance(dicts[i],str):
+#                print(dicts[i])
+                temp = re.sub(r"\${([^}]*)}", self.replFunc,dicts[i] , count=0, flags=0)
+                dicts[i] = temp
+#                print(dicts[i],temp)
+            else:
+                self.parseRef(dicts[i])
+        
+
+class CPathConfigPyConfig(CPathConfig):
     def __init__(self,confFile,sectionList:list = None, checkFolders = True):
         self._dict = dict()
         self._confFile = confFile
@@ -141,8 +301,6 @@ class CPathConfig:
                 self._dict[sec][item] = config.get(sec,item)
                 # print(config.get(sec,item))
     
-    def __getitem__(self,keyName):
-        return getattr(self, keyName)
     
     def _checkFolders(self):
 
@@ -165,7 +323,7 @@ class CPathConfig:
     
     def _addAttr(self):
         for sec in self._dict:
-            setattr(self,sec,CPathSection())
+            setattr(self,sec,CPathSection({}))
             for item in self._dict[sec]:
                 setattr(getattr(self, sec),item,CPath(self._dict[sec][item]))
                 
