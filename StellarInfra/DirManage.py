@@ -237,13 +237,14 @@ class CPathConfigYaml(CPathConfig):
         
                 
     def processFolder(self,Dict):
+#        print(Dict)
         for idx,i in enumerate(Dict):
             if isinstance(Dict[i],CYamlFolder):
                 Dict[i] = Dict[i].value
                 checkFolder(Dict[i])
             else:
-                if getattr(Dict[i],'keys()',None):
-                    self.processFolder(Dict[i].__dict__)
+                if getattr(Dict[i],'keys',None):
+                    self.processFolder(Dict[i])
     
         
     def setAttr(self,dicts):

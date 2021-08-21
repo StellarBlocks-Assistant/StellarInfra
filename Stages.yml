@@ -15,7 +15,7 @@ Constant:
     mTRFModelName: savedModel.mtrf
     
 Encoders:
-    Root: D:\Appendix\Test\Rotation3_ExperimentData
+    Root: !Folder D:\Appendix\Test\Rotation3_ExperimentData
     Root2: D:\Appendix\Test\Rotation3_ExperimentData\coref
     Base: ''
     SRLTop1: ${Encoders.Root}/finetune_top1Layer/model.tar.gz]
@@ -28,16 +28,16 @@ Encoders:
     CorefTop4: ${Encoders.Root2}/xlnettop4layer_35len_07152021/model.tar.gz]
     
 WordVecs:
-    Base: ${RootPath.WordVecs}Base.vec
-    SRLTop1: ${RootPath.WordVecs}SRLTop1.vec
-    SRLTop2: ${RootPath.WordVecs}SRLTop2.vec
-    SRLTop3: ${RootPath.WordVecs}SRLTop3.vec
-    SRLTop4: ${RootPath.WordVecs}SRLTop4.vec
-    CorefTop1: ${RootPath.WordVecs}CorefTop1.vec
-    CorefTop2: ${RootPath.WordVecs}CorefTop2.vec
-    CorefTop3: ${RootPath.WordVecs}CorefTop3.vec
-    CorefTop4: ${RootPath.WordVecs}CorefTop4.vec
-    BaseSurprisal: ${RootPath.WordVecs}BaseSurprisal.vec
+    Base: ${RootPath.WordVecs}/Base.vec
+    SRLTop1: ${RootPath.WordVecs}/SRLTop1.vec
+    SRLTop2: ${RootPath.WordVecs}/SRLTop2.vec
+    SRLTop3: ${RootPath.WordVecs}/SRLTop3.vec
+    SRLTop4: ${RootPath.WordVecs}/SRLTop4.vec
+    CorefTop1: ${RootPath.WordVecs}/CorefTop1.vec
+    CorefTop2: ${RootPath.WordVecs}/CorefTop2.vec
+    CorefTop3: ${RootPath.WordVecs}/CorefTop3.vec
+    CorefTop4: ${RootPath.WordVecs}/CorefTop4.vec
+    BaseSurprisal: ${RootPath.WordVecs}/BaseSurprisal.vec
     
 Folders: !Folders
     a: D:\Appendix\Test\TestSTDMYaml
