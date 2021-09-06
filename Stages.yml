@@ -1,22 +1,22 @@
 --- !StDM
 TextData :
-    Text : D:\Appendix\Test\Dataset\OldManAndTheSea\Txt Files\text
-    WordOnsets : D:\Appendix\Test\Dataset\OldManAndTheSea\wordOnsets
-    TestFile : D:\Appendix\Test\Dataset\OldManAndTheSea\Test\test.txt
+    Text : F:\Dataset\OldManAndTheSea\Txt Files\text
+    WordOnsets : F:\Dataset\OldManAndTheSea\wordOnsets
+    TestFile : F:\Dataset\OldManAndTheSea\Test\test.txt
     
 RootPath: !Folders
-    MiddleData: D:\Appendix\Test\Dataset\CachedData\FinetuneNLPCorrelatesEEG
-    CloudRoot: D:\Appendix\Test\Language\FinetuneNLPCorrelatesEEG
+    MiddleData: F:\Dataset\CachedData\FinetuneNLPCorrelatesEEG
+    CloudRoot: D:\OneDrive\ShiningStoneResearch\Language\FinetuneNLPCorrelatesEEG
     ResultRoot: ${RootPath.CloudRoot}\result
-    WordVecs: D:\Appendix\Test\Dataset\OldManAndTheSea\wordVecs
+    WordVecs: F:\Dataset\OldManAndTheSea\wordVecs
     
 Constant:
     DefaultModelName: savedModel_feedForward_best.pt
     mTRFModelName: savedModel.mtrf
     
 Encoders:
-    Root: !Folder D:\Appendix\Test\Rotation3_ExperimentData
-    Root2: D:\Appendix\Test\Rotation3_ExperimentData\coref
+    Root: D:\OneDrive\Rotation3_ExperimentData
+    Root2: D:\OneDrive\Rotation3_ExperimentData\coref
     Base: ''
     SRLTop1: ${Encoders.Root}/finetune_top1Layer/model.tar.gz
     SRLTop2: ${Encoders.Root}/finetune_top2Layer/model.tar.gz
@@ -38,8 +38,19 @@ WordVecs:
     CorefTop3: ${RootPath.WordVecs}/CorefTop3.vec
     CorefTop4: ${RootPath.WordVecs}/CorefTop4.vec
     BaseSurprisal: ${RootPath.WordVecs}/BaseSurprisal.vec
-    
-Folders: !Folders
+
+Studies:
+    Subj19: !ClsStr
+        Str: '19subj'
+        SRL: !ClsStr
+            Str: 'SLR'
+            Finetune3: !ClsStr
+                Str: 'finetune3'
+            Finetune4: !ClsStr
+                Str: 'finetune4'
+        
+
+Folders: #!Folders
     a: D:\Appendix\Test\TestSTDMYaml
 
     

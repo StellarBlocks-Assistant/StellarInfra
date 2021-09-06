@@ -187,6 +187,18 @@ class CYamlFolder(yaml.YAMLObject,CYamlTagMixin):
     @classmethod
     def to_yaml(cls, dumper, data):
         return dumper.represent_scalar(cls.yaml_tag, data.env_var)
+    
+class CYamlClsStr(yaml.YAMLObject,CYamlTagMixin):
+    yaml_tag = u'!ClsStr'
+    
+    # def __init__(self, value,nextObj = None):
+        # self.value = value
+    
+    @classmethod
+    def from_yaml(cls, loader, node):
+        # print(node.value)
+        # node.value.append(None)
+        return loader.construct_yaml_object(node, cls)
 
 class CYamlConfig(yaml.YAMLObject,CYamlTagMixin):
     yaml_tag = u'!StDM'
@@ -211,6 +223,7 @@ class CPathConfigYaml(CPathConfig):
         
         self.processFolder(self.YamlNodes)
         self.parseRef(self.YamlNodes)
+        self.parseClsStr(self.YamlNodes, '',self)
         self.setAttr(self.YamlNodes)
         
         if checkFolder:
@@ -267,7 +280,7 @@ class CPathConfigYaml(CPathConfig):
         return oAttr    
        
     def parseRef(self,dicts):
-#        print(dicts)
+        # print(dicts)
         for i in dicts:
             if isinstance(dicts[i],str):
 #                print(dicts[i])
@@ -276,6 +289,23 @@ class CPathConfigYaml(CPathConfig):
 #                print(dicts[i],temp)
             else:
                 self.parseRef(dicts[i])
+        
+    def parseClsStr(self,dicts,lastStr,context):
+        # assert len(dicts.keys() == 2) or len(dicts.keys() == 1)
+        # assert isinstance(dicts['Str'], str)
+        if isinstance(dicts,CYamlClsStr):
+            dicts['Str'] = lastStr + dicts['Str'] if lastStr == '' else lastStr + '_' + dicts['Str']
+            lastStr = dicts['Str']
+            keys = [i for i in dicts]
+            if len(keys) == 1:
+                # print(dicts['Str'])
+                context[0][context[1]] = dicts['Str']
+                return 
+        elif isinstance(dicts, str):
+            return
+        for i in dicts:
+            self.parseClsStr(dicts[i],lastStr,(dicts,i))
+            
         
 
 class CPathConfigPyConfig(CPathConfig):
