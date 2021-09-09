@@ -223,7 +223,7 @@ class CPathConfigYaml(CPathConfig):
         
         self.processFolder(self.YamlNodes)
         self.parseRef(self.YamlNodes)
-        self.parseClsStr(self.YamlNodes, '',self)
+        self.parseClsStr(self.YamlNodes, '')
         self.setAttr(self.YamlNodes)
         
         if checkFolder:
@@ -290,21 +290,21 @@ class CPathConfigYaml(CPathConfig):
             else:
                 self.parseRef(dicts[i])
         
-    def parseClsStr(self,dicts,lastStr,context):
+    def parseClsStr(self,dicts,lastStr):#,context):
         # assert len(dicts.keys() == 2) or len(dicts.keys() == 1)
         # assert isinstance(dicts['Str'], str)
         if isinstance(dicts,CYamlClsStr):
-            dicts['Str'] = lastStr + dicts['Str'] if lastStr == '' else lastStr + '_' + dicts['Str']
-            lastStr = dicts['Str']
+            # dicts['Str'] = lastStr + dicts['Str'] if lastStr == '' else lastStr + '_' + dicts['Str']
+            lastStr = lastStr + dicts['Tag'] if lastStr == '' else lastStr + '_' + dicts['Tag']
             keys = [i for i in dicts]
             if len(keys) == 1:
                 # print(dicts['Str'])
-                context[0][context[1]] = dicts['Str']
-                return 
+                dicts['Tag'] = lastStr
+                # return 
         elif isinstance(dicts, str):
             return
         for i in dicts:
-            self.parseClsStr(dicts[i],lastStr,(dicts,i))
+            self.parseClsStr(dicts[i],lastStr)#,(dicts,i))
             
         
 
