@@ -8,7 +8,7 @@ import json
 import array,os
 import numpy as np
 from scipy import io as scipyIO
-from .DirManage import checkFolder
+from .DirManage import checkFolder, checkExists
 from functools import singledispatch
 
 
@@ -87,3 +87,18 @@ def loadMatFile(matFilePath):
 def saveMatFile(matFilePath,mdict,**kwargs):
     return scipyIO.savemat(matFilePath,mdict,**kwargs)
 ''' End '''
+
+
+
+''' A mixin class for generate and load data usage'''
+#Mode:
+class Enum:
+    READ = 'read'
+    WRITE = 'write'
+
+class MixinDataInOut:
+    
+    def __init__(self,path):
+        if checkExists(path):
+            self._mode = Enum.READ
+        

@@ -40,14 +40,25 @@ WordVecs:
     BaseSurprisal: ${RootPath.WordVecs}/BaseSurprisal.vec
 
 Studies:
+    Finetune: &Finetune
+        Finetune1: !ClsStr
+            Str: 'finetune1'
+        Finetune2: !ClsStr
+            Str: 'finetune2'
+        Finetune3: !ClsStr
+            Str: 'finetune3'
+        Finetune4: !ClsStr
+            Str: 'finetune4'
+        
     Subj19: !ClsStr
         Str: '19subj'
+        SRLCoref: !ClsStr
+            Str: 'SRLCoref'
+            <<: *Finetune
         SRL: !ClsStr
-            Str: 'SLR'
-            Finetune3: !ClsStr
-                Str: 'finetune3'
-            Finetune4: !ClsStr
-                Str: 'finetune4'
+            Str: 'SRL'
+            <<: *Finetune
+            
         
 
 Folders: #!Folders
