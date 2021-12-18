@@ -222,8 +222,8 @@ class CPathConfigYaml(CPathConfig):
         self.YamlNodes.update(self._doc.__dict__)
         
         self.processFolder(self.YamlNodes)
-        self.parseRef(self.YamlNodes)
-        self.parseClsStr(self.YamlNodes, '')
+        # self.parseRef(self.YamlNodes)
+        # self.parseClsStr(self.YamlNodes, '')
         self.setAttr(self.YamlNodes)
         
         if checkFolder:
