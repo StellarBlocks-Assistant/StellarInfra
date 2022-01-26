@@ -72,7 +72,7 @@ TRUE_FALSE= [True,False]
 
 class CLog:
     #
-    def __init__(self,folder=None,Name=None,ext = '.txt'):
+    def __init__(self,folder=None,Name=None,ext = '.txt',openMode = "a+"):
         signal(SIGINT, self._handleSIGINT)
         self._mode = 'safe' # 'fast' | 'safe'
         self._printFlag = True
@@ -81,6 +81,7 @@ class CLog:
         self.name = None
         self._fileName = None
         self.fileHandle = None
+        self._openMode = openMode
         if folder != None and Name != None:
             checkFolder(folder)
             self._fileName = folder+'/' + Name + ext
@@ -90,6 +91,7 @@ class CLog:
             self.name = Name
         else:
             self.fileHandle = None
+        
     
     @property
     def fileName(self):
@@ -141,7 +143,7 @@ class CLog:
     def Open(self):
         if self._fileName == None:
             return False
-        self.fileHandle = open(self._fileName, "a+")
+        self.fileHandle = open(self._fileName, self._openMode)
         
     def Save(self):
         if not self.usable:
