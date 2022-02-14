@@ -77,6 +77,12 @@ def loadText(path):
     contents = f.read()
     f.close()
     return contents
+
+def loadTextLines(path):
+    f=open(path, "r")
+    contents = f.readlines()
+    f.close()
+    return contents
 ''' End '''
 
 '''load Matlab .Mat file '''
