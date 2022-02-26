@@ -10,7 +10,7 @@ import numpy as np
 from scipy import io as scipyIO
 from .DirManage import checkFolder, checkExists
 from functools import singledispatch
-
+import pandas as pd
 
 @singledispatch
 def toJson(val):
@@ -71,7 +71,6 @@ def loadBinFast(Dir,Type:str = 'd'):
     a.fromfile(f, os.path.getsize(Dir) // a.itemsize)
     return np.asarray(a)
     
-
 def loadText(path):
     f=open(path, "r")
     contents = f.read()
@@ -83,6 +82,14 @@ def loadTextLines(path):
     contents = f.readlines()
     f.close()
     return contents
+
+def loadCSV(path):
+    df = pd.read_csv(path)
+    out = {}
+    for i in df:
+        out[i] = df[i].tolist()
+    return out
+
 ''' End '''
 
 '''load Matlab .Mat file '''
@@ -93,7 +100,6 @@ def loadMatFile(matFilePath):
 def saveMatFile(matFilePath,mdict,**kwargs):
     return scipyIO.savemat(matFilePath,mdict,**kwargs)
 ''' End '''
-
 
 
 ''' A mixin class for generate and load data usage'''
