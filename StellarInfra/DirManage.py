@@ -69,7 +69,7 @@ def getFileName(path):
     return dataSetName,extension
 
 def getSubFolderName(folder):
-    subfolders = [f.name for f in os.scandir(folder) if f.is_dir() ]
+    subfolders = [CPath(f.name) for f in os.scandir(folder) if f.is_dir() ]
     return subfolders
 
 
@@ -130,7 +130,7 @@ class CPath(str):
     
     def __truediv__(self,newPath:str):
         return CPath(super().__add__(f'/{newPath}'))
-      
+
     
 class CPathConfig:
     
