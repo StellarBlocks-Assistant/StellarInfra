@@ -47,7 +47,7 @@ def checkFolder(folderPath):
         os.makedirs(folderPath)
 
 def getFileList(folder_path,extension):
-    ans = [os.path.join(folder_path,file) for file in os.listdir(folder_path) if file.endswith(extension)]
+    ans = [CPath(os.path.join(folder_path,file)) for file in os.listdir(folder_path) if file.endswith(extension)]
     if(len(ans)==0):
         warnings.warn("getFileList's error: folder: '" + str(folder_path) + "'is empty with '" + str(extension) + "' kind of file")
         return None
