@@ -130,6 +130,9 @@ class CPath(str):
     
     def __truediv__(self,newPath:str):
         return CPath(super().__add__(f'/{newPath}'))
+    
+    def __rtruediv__(self,newPath:str):
+        return CPath(newPath.__add__(f'/{self}'))
 
     
 class CPathConfig:
