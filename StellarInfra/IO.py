@@ -12,6 +12,32 @@ from .DirManage import checkFolder, checkExists
 from functools import singledispatch
 import pandas as pd
 
+class OSMeta(type):
+    
+    def __init__(cls, *args, **kwargs):
+         pass
+         
+    @property
+    def win(cls):
+        name = os.name
+        if name == 'nt':
+            return True
+        else:
+            return False
+     
+    @property
+    def unix(cls):
+        name = os.name
+        if name == 'posix':
+            return True
+        else:
+            return False
+
+
+class OS(metaclass=OSMeta):
+    pass
+    
+
 @singledispatch
 def toJson(val):
     """ default for json"""
