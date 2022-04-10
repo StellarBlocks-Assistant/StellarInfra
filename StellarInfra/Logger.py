@@ -5,7 +5,7 @@ Created on Wed Jun 17 14:37:03 2020
 @author: Jin Dou
 """
 import datetime
-from .DirManage import checkFolder,checkExists
+from .DirManage import checkFolder,checkExists,getUpperDir
 import pandas as pd
 from signal import signal, SIGINT
 import sys
@@ -82,9 +82,14 @@ class CLog:
         self._fileName = None
         self.fileHandle = None
         self._openMode = openMode
-        if folder != None and Name != None:
-            checkFolder(folder)
-            self._fileName = folder+'/' + Name + ext
+        if folder != None or Name != None:
+            if Name is None:
+                checkFolder(getUpperDir(folder)[0])
+                self._fileName = folder
+            else:
+                self._fileName = folder+'/' + Name + ext
+                checkFolder(folder)
+            
             self.Open()
             self.Save()
             self.folder = folder
