@@ -10,6 +10,45 @@ import warnings
 from configparser import ConfigParser,BasicInterpolation
 import yaml
 import re
+import json
+
+class CNameByConfig:
+    
+    def __init__(self,attrSymbol:str = '=',sepSymbol:str = '~'):
+        self.attrSymbol:str = attrSymbol
+        self.sepSymbol:str = sepSymbol
+        
+    def __call__(self,*args,**kwargs):
+        return self.encode(*args,**kwargs)
+    
+    def encode(self,config:dict,keys = None,extendDict = {}):
+        
+        if len(extendDict) > 0:
+            config = config.copy()
+            config.update(extendDict)
+        
+        attrSymbol = self.attrSymbol
+        sepSymbol = self.sepSymbol
+        if keys is None:
+            keys = list(config.keys())
+            keys = sorted(keys)
+        output = ''
+        for idx,key in enumerate(keys):
+            jsonStr = json.dumps(config.get(key)).replace("\"", "'")
+            output = output + f'{key}{attrSymbol}{jsonStr}' \
+                            + (sepSymbol if idx < len(keys) - 1 else '')
+        
+        return output                  
+    
+    def decode(self,string):
+        configs = string.split(self.sepSymbol)
+        output = {}
+        for conf in configs:
+            k,v = conf.split(self.attrSymbol)
+            v = v.replace("'","\"")
+            output[k] = json.loads(v)
+        return output
+    
 
 def getUpperDir(path:str):
     out = os.path.split(path)
