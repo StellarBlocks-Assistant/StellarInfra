@@ -121,7 +121,11 @@ def loadCSV(path):
 '''load Matlab .Mat file '''
 
 def loadMatFile(matFilePath):
-    return scipyIO.loadmat(matFilePath)
+    try:
+        return scipyIO.loadmat(matFilePath)
+    except:
+        import mat73
+        return mat73.loadmat(matFilePath)
 
 def saveMatFile(matFilePath,mdict,**kwargs):
     return scipyIO.savemat(matFilePath,mdict,**kwargs)

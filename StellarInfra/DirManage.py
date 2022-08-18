@@ -11,12 +11,39 @@ from configparser import ConfigParser,BasicInterpolation
 import yaml
 import re
 import json
+from functools import singledispatch
+import numpy as np
+
+@singledispatch
+def toJson(val):
+    """ default for json"""
+    # print(val,type(val))
+    if isinstance(val, np.ndarray):
+        return val.tolist()
+    else:
+        return val
+
+@toJson.register(np.ndarray)
+def toJson_npArray(val):
+    # print('!!!')
+    return val.tolist()
+
+@toJson.register(np.int64)
+def toJson_int(val):
+    """ for np float 32"""
+    return int(val)
+
+@toJson.register(np.float32)
+def toJson_float32(val):
+    """ for np float 32"""
+    return np.float64(val)
 
 class CNameByConfig:
     
-    def __init__(self,attrSymbol:str = '=',sepSymbol:str = '~'):
+    def __init__(self,attrSymbol:str = '=',sepSymbol:str = '_', includeNone = True):
         self.attrSymbol:str = attrSymbol
         self.sepSymbol:str = sepSymbol
+        self.includeNone = includeNone
         
     def __call__(self,*args,**kwargs):
         return self.encode(*args,**kwargs)
@@ -34,7 +61,10 @@ class CNameByConfig:
             keys = sorted(keys)
         output = ''
         for idx,key in enumerate(keys):
-            jsonStr = json.dumps(config.get(key)).replace("\"", "'")
+            if not self.includeNone:
+                if config.get(key) is None:
+                    continue
+            jsonStr = json.dumps(config.get(key),default = toJson).replace("\"", "'")
             output = output + f'{key}{attrSymbol}{jsonStr}' \
                             + (sepSymbol if idx < len(keys) - 1 else '')
         
