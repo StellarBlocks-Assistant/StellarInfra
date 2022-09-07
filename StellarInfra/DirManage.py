@@ -191,6 +191,10 @@ class CPathSection:
     
     def __getitem__(self,keyName):
         return getattr(self, keyName)
+    
+    def __iter__(self):
+        for i in self.__dict__:
+            yield i
 
 class CPath(str):
     
@@ -208,7 +212,8 @@ class CPathConfig:
     
     def __new__(cls,confFile:str,**kwargs):
         if confFile.endswith('.conf'):
-            return super().__new__(CPathConfigPyConfig)
+            obj = super().__new__(CPathConfigPyConfig)
+            return obj
         elif confFile.endswith('.yaml') or confFile.endswith('.yml'):
             return super().__new__(CPathConfigYaml)
         else:
@@ -378,7 +383,6 @@ class CPathConfigYaml(CPathConfig):
         for i in dicts:
             self.parseClsStr(dicts[i],lastStr)#,(dicts,i))
             
-        
 
 class CPathConfigPyConfig(CPathConfig):
     def __init__(self,confFile,sectionList:list = None, checkFolders = True):
