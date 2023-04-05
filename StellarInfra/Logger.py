@@ -4,12 +4,40 @@ Created on Wed Jun 17 14:37:03 2020
 
 @author: Jin Dou
 """
+import smtplib
+from email.mime.text import MIMEText
+
 import datetime
 from .DirManage import checkFolder,checkExists,getUpperDir
 import pandas as pd
 from signal import signal, SIGINT
 import sys
 #maybe considering the offcial logging lib in the future
+
+class CGmailLogger:
+    
+    def __init__(self,receiverName = None,senderName = 'stellarblocks.assist', password = ''):
+        senderName += '@gmail.com'
+        if receiverName is None:
+            receiverName = senderName
+        self.receiverName = receiverName
+        self.senderName = senderName
+        self.password = password
+        
+    def send(self,msg,title):
+        SERVER_ADDRESS = 'smtp.gmail.com'
+        port = 587 #TLS_PORT = 587  # 465 if using ssl
+        oMsg = MIMEText(msg)
+        
+        oMsg['Subject'] = title
+        oMsg['From'] = self.senderName
+        oMsg['To'] = self.receiverName
+        
+        s = smtplib.SMTP(SERVER_ADDRESS,port)
+        s.starttls()
+        s.login(self.senderName, self.password)
+        s.sendmail(self.senderName, [self.receiverName], oMsg.as_string())
+        s.quit()
 
 class CExprLogger:
     def __init__(self,keys:list,file:str):
