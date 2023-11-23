@@ -9,3 +9,17 @@ from .Logger import CLog
 #CLog
 
 #CDirectoryConfig
+
+try:
+    import torch
+except:
+    torch = None
+try:
+    import numpy as np
+except:
+    np = None
+try:
+    from matplotlib import pyplot as plt
+except:
+    plt = None
+
