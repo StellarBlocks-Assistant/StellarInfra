@@ -79,6 +79,15 @@ def loadObject(filePath):
     temp = pickle.load(file)
     return temp
 
+def createIfNotExist(filePath, fGetResult, overwrite = False):
+    if overwrite or not os.path.exists(filePath):
+        print("StellarInfra.IO createIfNotExist prepare file:,", filePath)
+        rs = fGetResult()
+        saveObject(rs, filePath)
+    else:
+        rs = loadObject(filePath)
+    return rs
+
 def saveDictJson(filePath:str,Obj:dict):
     with open(filePath,'w') as file:
         json.dump(Obj,file,default = toJson,indent=4)

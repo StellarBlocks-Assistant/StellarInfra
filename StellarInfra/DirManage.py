@@ -6,6 +6,7 @@ Created on Wed Jun 17 12:11:13 2020
 """
 
 import os
+import platform
 import warnings
 from configparser import ConfigParser,BasicInterpolation
 import yaml
@@ -13,6 +14,28 @@ import re
 import json
 from functools import singledispatch
 import numpy as np
+
+
+class AllPlatformPath:
+
+    def __init__(self, configFile):
+        self._file = configFile
+
+    def get_file(self, fd_section, section, key):
+        folder = self.get_path(fd_section)
+        file_path = self.get_path(section, key)
+        return f"{folder}/{file_path}"
+
+    def get_path(self, section, key = None):
+        path = CPathConfig(self.get_file,checkFolders = False)
+        pcnode = platform.node()
+        if 'bh' in pcnode or pcnode == 'bluehive':
+            pcnode = 'bh'
+        if 'folder' in section:
+            key = pcnode
+        else:
+            assert key is not None
+        return path[section][key]
 
 @singledispatch
 def toJson(val):
