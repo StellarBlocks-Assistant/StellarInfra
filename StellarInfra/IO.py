@@ -106,8 +106,8 @@ def loadBinFast(Dir,Type:str = 'd'):
     a.fromfile(f, os.path.getsize(Dir) // a.itemsize)
     return np.asarray(a)
     
-def loadText(path):
-    f=open(path, "r")
+def loadText(path, encoding = None):
+    f=open(path, "r", encoding = encoding)
     contents = f.read()
     f.close()
     return contents
