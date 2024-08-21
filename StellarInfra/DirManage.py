@@ -16,9 +16,9 @@ from functools import singledispatch
 import numpy as np
 
 
-def get_file(get_path, fd_section, section, key):
-    folder = get_path(get_path, fd_section)
-    file = get_path(get_path, section, key)
+def get_file(filepath, fd_section, section, key):
+    folder = get_path(filepath, fd_section)
+    file = get_path(filepath, section, key)
     return f"{folder}/{file}"
 
 def get_path(filepath, section, key = None):
