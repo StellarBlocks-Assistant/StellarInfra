@@ -16,6 +16,22 @@ from functools import singledispatch
 import numpy as np
 
 
+def get_file(filepath, fd_section, section, key):
+    folder = get_path(filepath, fd_section)
+    file = get_path(filepath, section, key)
+    return f"{folder}/{file}"
+
+def get_path(filepath, section, key = None):
+    path = CPathConfig(filepath, checkFolders = False)
+    pcnode = platform.node()
+    if 'bh' in pcnode or pcnode == 'bluehive':
+        pcnode = 'bh'
+    if 'folder' in section:
+        key = pcnode
+    else:
+        assert key is not None
+    return path[section][key]
+
 class AllPlatformPath:
 
     def __init__(self, configFile):
