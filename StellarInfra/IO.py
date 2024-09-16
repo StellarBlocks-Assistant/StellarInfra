@@ -8,7 +8,7 @@ import json
 import array,os
 import numpy as np
 from scipy import io as scipyIO
-from .DirManage import checkFolder, checkExists
+from .DirManage import checkFolder, checkExists, getUpperDir
 from functools import singledispatch
 import pandas as pd
 
@@ -139,6 +139,16 @@ def loadMatFile(matFilePath):
 def saveMatFile(matFilePath,mdict,**kwargs):
     return scipyIO.savemat(matFilePath,mdict,**kwargs)
 ''' End '''
+
+
+def mustExist(filepath, function = None):
+    if checkExists(filepath):
+        return loadObject(filepath)
+    else:
+        checkFolder(os.path.dirname(filepath))
+        obj = function()
+        saveObject(obj, filepath)
+        return obj
 
 
 ''' A mixin class for generate and load data usage'''
