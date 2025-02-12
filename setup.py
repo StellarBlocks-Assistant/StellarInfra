@@ -5,7 +5,7 @@ with open("./README.md", "r") as fh:
 
 setuptools.setup(
   name="StellarInfra",
-  version="0.0.5",
+  version="0.0.6",
   author="Powerfulbean",
   author_email="powerfulbean@gmail.com",
   description="An python infrastructure of StellarBlocks's software",
