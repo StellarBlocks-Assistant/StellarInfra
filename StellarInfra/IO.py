@@ -12,6 +12,22 @@ from .DirManage import checkFolder, checkExists, getUpperDir
 from functools import singledispatch
 import pandas as pd
 
+def _recursPrintDim(data):
+    if isinstance(data, list) or isinstance(data, tuple):
+        return (len(data),) + _recursPrintDim(data[0])
+    elif isinstance(data, dict):
+        return tuple(f'{k} {_recursPrintDim(data[k])}' for k in data)
+    elif isinstance(data, np.ndarray):
+        return (data.shape,)
+    else:
+        print(type(data))
+        raise ValueError
+
+def printNestedListData(*datas):
+    for data in datas:
+        # print('dim1: ', len(data), 'dim2: ', len(data[0]), 'dim3: ', len(data[0][0]), 'shape: ', data[0][0][0].shape)
+        print('data dim: ', _recursPrintDim(data))
+
 class OSMeta(type):
     
     def __init__(cls, *args, **kwargs):
