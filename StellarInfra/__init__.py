@@ -11,10 +11,6 @@ from .Logger import CLog
 #CDirectoryConfig
 
 try:
-    import torch
-except:
-    torch = None
-try:
     import numpy as np
 except:
     np = None

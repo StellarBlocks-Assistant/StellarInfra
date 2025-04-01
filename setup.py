@@ -5,7 +5,7 @@ with open("./README.md", "r") as fh:
 
 setuptools.setup(
   name="StellarInfra",
-  version="0.0.5",
+  version="0.0.8",
   author="Powerfulbean",
   author_email="powerfulbean@gmail.com",
   description="An python infrastructure of StellarBlocks's software",
@@ -14,8 +14,16 @@ setuptools.setup(
   url="https://github.com/StellarBlocks/StellarInfra",
   packages=setuptools.find_packages(),
   classifiers=[
-  "Programming Language :: Python :: 3",
-  "License :: OSI Approved :: MIT License",
-  "Operating System :: OS Independent",
+      "Programming Language :: Python :: 3",
+      "License :: OSI Approved :: MIT License",
+      "Operating System :: OS Independent",
+  ],
+  install_requires=[
+      "numpy",
+      "scipy",
+      "pandas",
+      "mat73",
+      "keyboard",
+      "PyYAML"
   ],
 )
